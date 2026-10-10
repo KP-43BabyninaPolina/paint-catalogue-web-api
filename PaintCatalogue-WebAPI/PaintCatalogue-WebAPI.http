@@ -78,7 +78,7 @@ Content-Type: application/json
   "brandId": -5
 }
 
-### 2.4 Create a valid paint with non-existing brand
+### 2.3. Create a valid paint with non-existing brand
 POST {{HostAddress}}/api/paints
 Content-Type: application/json
 
@@ -94,11 +94,11 @@ Content-Type: application/json
   "brandId": 999
 }
 
-### 2.5. Get paints by BrandId
+### 2.4. Get paints by BrandId
 GET {{HostAddress}}/api/paints/brand/1
 Accept: application/json
 
-### 2.6. Update a paint
+### 2.5. Update a paint
 PATCH {{HostAddress}}/api/paints/1
 Content-Type: application/json
 
@@ -114,7 +114,7 @@ Content-Type: application/json
   "brandId": 1
 }
 
-### 2.7. Update a paint to the non-existing brand
+### 2.6. Update a paint to the non-existing brand
 PATCH {{HostAddress}}/api/paints/1
 Content-Type: application/json
 
