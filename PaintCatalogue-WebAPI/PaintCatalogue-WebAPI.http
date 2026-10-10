@@ -2,7 +2,7 @@
 
 ### === 1. BRANDS OPERATIONS ==========================================
 
-# 1.1. Get all brands
+### 1.1. Get all brands
 GET {{HostAddress}}/api/brands
 Accept: application/json
 
@@ -42,7 +42,7 @@ Content-Type: application/json
 
 ### === 2. PAINTS OPERATIONS ========================================
 
-# 2.1. Get all paints
+### 2.1. Get all paints
 GET {{HostAddress}}/api/paints
 Accept: application/json
 
@@ -94,11 +94,15 @@ Content-Type: application/json
   "brandId": 999
 }
 
-### 2.4. Get paints by BrandId
+### 2.4. Get paint by ID 
+GET {{HostAddress}}/api/paints/99
+Accept: application/json
+
+### 2.5. Get paints by BrandId
 GET {{HostAddress}}/api/paints/brand/1
 Accept: application/json
 
-### 2.5. Update a paint
+### 2.6. Update a paint
 PATCH {{HostAddress}}/api/paints/1
 Content-Type: application/json
 
@@ -114,7 +118,7 @@ Content-Type: application/json
   "brandId": 1
 }
 
-### 2.6. Update a paint to the non-existing brand
+### 2.7. Update a paint to the non-existing brand
 PATCH {{HostAddress}}/api/paints/1
 Content-Type: application/json
 
