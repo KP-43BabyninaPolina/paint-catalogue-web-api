@@ -1,0 +1,156 @@
+@HostAddress = http://localhost:5144
+
+### === 1. BRANDS OPERATIONS ==========================================
+
+# 1.1. Get all brands
+GET {{HostAddress}}/api/brands
+Accept: application/json
+
+### 1.2. Create valid brand 
+POST {{HostAddress}}/api/brands
+Content-Type: application/json
+
+{
+  "name": "Winsor & Newton",
+  "country": "United Kingdom",
+  "description": "Professional premium-class paints"
+}
+
+### 1.3. Create an invalid brand
+POST {{HostAddress}}/api/brands
+Content-Type: application/json
+
+{
+  "name": "",
+  "country": "   ",
+  "description": "Very long descriptionVery long descriptionVery long description Very long descriptionVery long descriptionVery long descriptionVery long descriptionVery long descriptionVery long descriptionVery long descriptionVery long descriptionVery long descriptionVery long descriptionVery long descriptionVery long descriptionVery long descriptionVery long descriptionVery long descriptionVery long descriptionVery long descriptionVery long descriptionVery long descriptionVery long descriptionVery long description"
+}
+
+### 1.4. Get brand by ID 
+GET {{HostAddress}}/api/brands/1
+Accept: application/json
+
+### 1.5. Update a brand
+PATCH {{HostAddress}}/api/brands/1
+Content-Type: application/json
+
+{
+  "name": "Rosa Gallery",
+  "country": "Ukraine",
+  "description": "Premium line by Rosa"
+}
+
+### === 2. PAINTS OPERATIONS ========================================
+
+# 2.1. Get all paints
+GET {{HostAddress}}/api/paints
+Accept: application/json
+
+### 2.2. Create a valid paint
+POST {{HostAddress}}/api/paints
+Content-Type: application/json
+
+{
+  "fullTitle": "Rosa Gallery Watercolor, Cadmium Red, 10 ml tube",
+  "colorName": "Cadmium Red Light",
+  "type": 0,
+  "transparency": 1,
+  "price": 150.50,
+  "volume": 10,
+  "lightfastness": 5,
+  "colorCode": "012",
+  "brandId": 1
+}
+
+### 2.2. Create an invalid paint
+POST {{HostAddress}}/api/paints
+Content-Type: application/json
+
+{
+  "fullTitle": "E",
+  "colorName": "  ",
+  "type": 8,
+  "transparency": 7,
+  "price": -50.0,
+  "volume": 0,
+  "lightfastness": 8,
+  "colorCode": "12A",
+  "brandId": -5
+}
+
+### 2.4 Create a valid paint with non-existing brand
+POST {{HostAddress}}/api/paints
+Content-Type: application/json
+
+{
+  "fullTitle": "Ultramarine Blue",
+  "colorName": "Ultramarine",
+  "type": 1,
+  "transparency": 1,
+  "price": 120.0,
+  "volume": 10,
+  "lightfastness": 3,
+  "colorCode": "035",
+  "brandId": 999
+}
+
+### 2.5. Get paints by BrandId
+GET {{HostAddress}}/api/paints/brand/1
+Accept: application/json
+
+### 2.6. Update a paint
+PATCH {{HostAddress}}/api/paints/1
+Content-Type: application/json
+
+{
+  "fullTitle": "Rosa Gallery Gouache Cadmium Red - UPDATED",
+  "colorName": "Cadmium Red Light",
+  "type": 1,
+  "transparency": 1,
+  "price": 180.00,
+  "volume": 12,
+  "lightfastness": 4,
+  "colorCode": "012",
+  "brandId": 1
+}
+
+### 2.7. Update a paint to the non-existing brand
+PATCH {{HostAddress}}/api/paints/1
+Content-Type: application/json
+
+{
+  "fullTitle": "Test Title",
+  "colorName": "Test Color",
+  "type": 1,
+  "transparency": 1,
+  "price": 100.0,
+  "volume": 10,
+  "lightfastness": 3,
+  "colorCode": "111",
+  "brandId": 999
+}
+
+### === 3. DELETE OPERATIONS =======================================
+
+### 3.1. Attempt to delete a brand that has linked paints
+DELETE {{HostAddress}}/api/brands/1
+
+### 3.2. Attempt to delete all brands when paint catalogue is not empty
+DELETE {{HostAddress}}/api/brands
+
+### 3.3. Delete paint by ID
+DELETE {{HostAddress}}/api/paints/3
+
+### 3.4. Delete brand by ID
+DELETE {{HostAddress}}/api/brands/1
+
+### 3.5. Clear all databases
+DELETE {{HostAddress}}/api/paints
+###
+DELETE {{HostAddress}}/api/brands
+
+### === 4. ROUTING CHECKS =======================================
+
+### 4.1 Invalid routing
+GET {{HostAddress}}/api/paints/iii
+Content-Type: application/json
