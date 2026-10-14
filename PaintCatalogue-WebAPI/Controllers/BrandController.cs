@@ -41,6 +41,25 @@ public class BrandController : ControllerBase
     }
 
     /// <summary>
+    /// Retrieves a list of paints associated with the specified brand.
+    /// </summary>
+    /// <param name="id">The unique identifier of the brand.</param>
+    /// <returns>A collection of paints of this brand.</returns>
+    /// <response code="200">All paints of requested brand (or an empty list) are returned successfully.</response>
+    /// <response code="404">If the brand with the specified ID does not exist in the catalogue.</response>
+    [HttpGet("{id:int:min(1)}/paints", Name = "GetAllPaintsByBrandId")]
+    [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
+    public ActionResult<IEnumerable<Paint>> GetPaints(int id)
+    {
+        var brandExists = Brands.Get(id) != null;
+        if (!brandExists) return NotFound(new { Error = $"Brand with ID {id} is not found." });
+
+        var paintsOfBrand = Paints.GetByBrandId(id);
+
+        return Ok(paintsOfBrand);
+    }
+
+    /// <summary>
     /// Creates a new brand and adds it to the catalogue.
     /// </summary>
     /// <param name="newBrand">The brand object containing details like name and country.</param>

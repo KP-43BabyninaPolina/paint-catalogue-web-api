@@ -95,11 +95,11 @@ Content-Type: application/json
 }
 
 ### 2.4. Get paint by ID 
-GET {{HostAddress}}/api/paints/99
+GET {{HostAddress}}/api/paints/1
 Accept: application/json
 
 ### 2.5. Get paints by BrandId
-GET {{HostAddress}}/api/paints/brand/1
+GET {{HostAddress}}/api/brands/1/paints
 Accept: application/json
 
 ### 2.6. Update a paint
