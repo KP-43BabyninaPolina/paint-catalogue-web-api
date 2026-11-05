@@ -79,7 +79,7 @@ public class PaintController : ControllerBase
     /// If the provided paint data is invalid, or if the specified brand ID does not exist in the catalogue.
     /// </response>
     /// <response code="404">If the paint with the specified ID is not found.</response>
-    [HttpPatch("{id:int:min(1)}", Name = "UpdatePaintById")]
+    [HttpPut("{id:int:min(1)}", Name = "UpdatePaintById")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -84,7 +84,7 @@ public class BrandController : ControllerBase
     /// <response code="200">The brand is updated successfully.</response>
     /// <response code="400">If the provided brand data is invalid.</response>
     /// <response code="404">If the brand with the specified ID is not found.</response>
-    [HttpPatch("{id:int:min(1)}", Name = "UpdateBrandById")]
+    [HttpPut("{id:int:min(1)}", Name = "UpdateBrandById")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
