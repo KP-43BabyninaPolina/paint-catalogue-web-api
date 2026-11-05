@@ -12,6 +12,7 @@ public static class Program
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddControllers();
+        builder.Services.AddCatalogueStorages();
 
         builder.Services.AddValidatorsFromAssemblyContaining<PaintValidator>();
         builder.Services.AddFluentValidationAutoValidation();

@@ -9,8 +9,14 @@ namespace PaintCatalogue_WebAPI.Controllers;
 [Produces("application/json")]
 public class BrandController : ControllerBase
 {
-    private static readonly BrandStorage Brands = new();
-    private static readonly PaintStorage Paints = new();
+    private readonly IBrandStorage _brands;
+    private readonly IPaintStorage _paints;
+    
+    public BrandController(IPaintStorage paints, IBrandStorage brands)
+    {
+        _paints = paints;
+        _brands = brands;
+    }
 
     /// <summary>
     /// Returns a list of all brands in the catalogue.
@@ -20,7 +26,7 @@ public class BrandController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public IEnumerable<Brand> Get()
     {
-        return Brands.GetAll();
+        return _brands.GetAll();
     }
 
     /// <summary>
@@ -34,7 +40,7 @@ public class BrandController : ControllerBase
     [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
     public ActionResult<Brand> Get(int id)
     {
-        var brand = Brands.Get(id);
+        var brand = _brands.Get(id);
         if (brand == null) return NotFound();
 
         return Ok(brand);
@@ -51,10 +57,10 @@ public class BrandController : ControllerBase
     [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
     public ActionResult<IEnumerable<Paint>> GetPaints(int id)
     {
-        var brandExists = Brands.Get(id) != null;
+        var brandExists = _brands.Get(id) != null;
         if (!brandExists) return NotFound(new { Error = $"Brand with ID {id} is not found." });
 
-        var paintsOfBrand = Paints.GetByBrandId(id);
+        var paintsOfBrand = _paints.GetByBrandId(id);
 
         return Ok(paintsOfBrand);
     }
@@ -70,7 +76,7 @@ public class BrandController : ControllerBase
     [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Post))]
     public ActionResult<Brand> Create([FromBody] Brand newBrand)
     {
-        var createdBrand = Brands.Add(newBrand);
+        var createdBrand = _brands.Add(newBrand);
 
         return CreatedAtAction(nameof(Get), new { id = createdBrand.Id }, createdBrand);
     }
@@ -90,10 +96,10 @@ public class BrandController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public ActionResult<Brand> Update(int id, [FromBody] Brand updatedBrand)
     {
-        var existingBrand = Brands.Get(id);
+        var existingBrand = _brands.Get(id);
         if (existingBrand == null) return NotFound(new { Error = $"Brand with ID {id} is not found." });
 
-        var result = Brands.Update(id, updatedBrand);
+        var result = _brands.Update(id, updatedBrand);
 
         return Ok(result);
     }
@@ -111,13 +117,13 @@ public class BrandController : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public IActionResult Delete(int id)
     {
-        var existingBrand = Brands.Get(id);
+        var existingBrand = _brands.Get(id);
         if (existingBrand == null) return NotFound();
 
-        var linkedPaints = Paints.GetByBrandId(id);
+        var linkedPaints = _paints.GetByBrandId(id);
         if (linkedPaints.Any()) return Conflict(new { Error = "Cannot delete brand with paint records." });
 
-        Brands.Delete(id);
+        _brands.Delete(id);
         return NoContent();
     }
 
@@ -131,10 +137,10 @@ public class BrandController : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public IActionResult DeleteAll()
     {
-        if (Paints.GetAll().Any())
+        if (_paints.GetAll().Any())
             return Conflict(new { Error = "Cannot delete all brands: the paint catalogue is not empty." });
 
-        Brands.DeleteAll();
+        _brands.DeleteAll();
         return NoContent();
     }
 }

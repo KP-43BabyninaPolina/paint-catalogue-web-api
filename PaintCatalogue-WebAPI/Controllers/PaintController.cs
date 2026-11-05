@@ -9,8 +9,14 @@ namespace PaintCatalogue_WebAPI.Controllers;
 [Produces("application/json")]
 public class PaintController : ControllerBase
 {
-    private static readonly PaintStorage Paints = new();
-    private static readonly BrandStorage Brands = new();
+    private readonly IPaintStorage _paints;
+    private readonly IBrandStorage _brands;
+
+    public PaintController(IPaintStorage paints, IBrandStorage brands)
+    {
+        _paints = paints;
+        _brands = brands;
+    }
 
     /// <summary>
     /// Returns a list of all paints in the catalogue.
@@ -21,7 +27,7 @@ public class PaintController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public IEnumerable<Paint> Get()
     {
-        return Paints.GetAll();
+        return _paints.GetAll();
     }
 
     /// <summary>
@@ -35,7 +41,7 @@ public class PaintController : ControllerBase
     [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
     public ActionResult<Paint> Get(int id)
     {
-        var paint = Paints.Get(id);
+        var paint = _paints.Get(id);
         if (paint == null) return NotFound();
 
         return Ok(paint);
@@ -54,7 +60,7 @@ public class PaintController : ControllerBase
     [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Post))]
     public ActionResult<Paint> Create([FromBody] Paint newPaint)
     {
-        var brandExists = Brands.Get(newPaint.BrandId) != null;
+        var brandExists = _brands.Get(newPaint.BrandId) != null;
 
         if (!brandExists)
             return BadRequest(new
@@ -63,7 +69,7 @@ public class PaintController : ControllerBase
                         $"Paint must belong to an existing brand."
             });
 
-        var createdPaint = Paints.Add(newPaint);
+        var createdPaint = _paints.Add(newPaint);
 
         return CreatedAtAction(nameof(Get), new { id = createdPaint.Id }, createdPaint);
     }
@@ -85,10 +91,10 @@ public class PaintController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public ActionResult<Paint> Update(int id, [FromBody] Paint updatedPaint)
     {
-        var existingPaint = Paints.Get(id);
+        var existingPaint = _paints.Get(id);
         if (existingPaint == null) return NotFound(new { Error = $"Paint with ID {id} is not found." });
 
-        var brandExists = Brands.Get(updatedPaint.BrandId) != null;
+        var brandExists = _brands.Get(updatedPaint.BrandId) != null;
         if (!brandExists)
             return BadRequest(new
             {
@@ -96,7 +102,7 @@ public class PaintController : ControllerBase
                         $"Paint must belong to an existing brand."
             });
 
-        var result = Paints.Update(id, updatedPaint);
+        var result = _paints.Update(id, updatedPaint);
 
         return Ok(result);
     }
@@ -112,10 +118,10 @@ public class PaintController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult Delete(int id)
     {
-        var existingPaint = Paints.Get(id);
+        var existingPaint = _paints.Get(id);
         if (existingPaint == null) return NotFound();
 
-        Paints.Delete(id);
+        _paints.Delete(id);
         return NoContent();
     }
 
@@ -127,7 +133,7 @@ public class PaintController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public IActionResult DeleteAll()
     {
-        Paints.DeleteAll();
+        _paints.DeleteAll();
         return NoContent();
     }
 }

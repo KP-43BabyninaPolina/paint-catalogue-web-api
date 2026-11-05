@@ -2,20 +2,20 @@
 
 namespace PaintCatalogue_WebAPI.Storage;
 
-public class BrandStorage
+public class BrandStorage : IBrandStorage
 {
-    private static readonly List<Brand> Brands = [];
+    private readonly List<Brand> _brands = [];
 
-    static BrandStorage()
+    public BrandStorage()
     {
-        Brands.Add(new Brand
+        _brands.Add(new Brand
         {
             Id = 1,
             Name = "Rosa",
             Country = "Ukraine",
             Description = "High-quality paints for studying"
         });
-        Brands.Add(new Brand
+        _brands.Add(new Brand
         {
             Id = 2,
             Name = "Van Gogh",
@@ -26,18 +26,18 @@ public class BrandStorage
 
     public IEnumerable<Brand> GetAll()
     {
-        return Brands.OrderBy(x => x.Id);
+        return _brands.OrderBy(x => x.Id);
     }
 
     public Brand? Get(int id)
     {
-        return Brands.FirstOrDefault(x => x.Id == id);
+        return _brands.FirstOrDefault(x => x.Id == id);
     }
 
     public Brand Add(Brand brand)
     {
-        brand.Id = Brands.Count > 0 ? Brands.Max(x => x.Id) + 1 : 1;
-        Brands.Add(brand);
+        brand.Id = _brands.Count > 0 ? _brands.Max(x => x.Id) + 1 : 1;
+        _brands.Add(brand);
 
         return brand;
     }
@@ -57,11 +57,11 @@ public class BrandStorage
 
     public void DeleteAll()
     {
-        Brands.Clear();
+        _brands.Clear();
     }
 
     public void Delete(int id)
     {
-        Brands.RemoveAll(x => x.Id == id);
+        _brands.RemoveAll(x => x.Id == id);
     }
 }

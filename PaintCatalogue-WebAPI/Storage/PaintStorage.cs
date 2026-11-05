@@ -3,13 +3,13 @@ using PaintCatalogue_WebAPI.Models.Enums;
 
 namespace PaintCatalogue_WebAPI.Storage;
 
-public class PaintStorage
+public class PaintStorage : IPaintStorage
 {
-    private static readonly List<Paint> Paints = [];
+    private readonly List<Paint> _paints = [];
 
-    static PaintStorage()
+    public PaintStorage()
     {
-        Paints.Add(new Paint
+        _paints.Add(new Paint
         {
             Id = 1,
             FullTitle = "Rosa Gallery Watercolor, Ultramarine, 10ml tube",
@@ -22,7 +22,7 @@ public class PaintStorage
             Transparency = Transparency.SemiTransparent,
             BrandId = 1
         });
-        Paints.Add(new Paint
+        _paints.Add(new Paint
         {
             Id = 2,
             FullTitle = "Van Gogh Watercolor, Cobalt Blue (Ultramarine), 10ml tube",
@@ -39,24 +39,24 @@ public class PaintStorage
 
     public IEnumerable<Paint> GetAll()
     {
-        return Paints.OrderBy(x => x.Id);
+        return _paints.OrderBy(x => x.Id);
     }
 
     public Paint? Get(int id)
     {
-        return Paints.FirstOrDefault(x => x.Id == id);
+        return _paints.FirstOrDefault(x => x.Id == id);
     }
 
     public IEnumerable<Paint> GetByBrandId(int brandId)
     {
-        return Paints.Where(x => x.BrandId == brandId).OrderBy(x => x.Id);
+        return _paints.Where(x => x.BrandId == brandId).OrderBy(x => x.Id);
     }
 
     public Paint Add(Paint paint)
     {
-        paint.Id = Paints.Count > 0 ? Paints.Max(x => x.Id) + 1 : 1;
+        paint.Id = _paints.Count > 0 ? _paints.Max(x => x.Id) + 1 : 1;
 
-        Paints.Add(paint);
+        _paints.Add(paint);
 
         return paint;
     }
@@ -82,11 +82,11 @@ public class PaintStorage
 
     public void DeleteAll()
     {
-        Paints.Clear();
+        _paints.Clear();
     }
 
     public void Delete(int id)
     {
-        Paints.RemoveAll(x => x.Id == id);
+        _paints.RemoveAll(x => x.Id == id);
     }
 }
