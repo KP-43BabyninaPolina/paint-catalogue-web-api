@@ -1,5 +1,5 @@
-﻿using PaintCatalogue_WebAPI.Models;
-using PaintCatalogue_WebAPI.Models.Enums;
+﻿using PaintCatalogue_WebAPI.DataModel.Entities;
+using PaintCatalogue_WebAPI.DataModel.Entities.Enums;
 
 namespace PaintCatalogue_WebAPI.Storage;
 

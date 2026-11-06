@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using PaintCatalogue_WebAPI.Models;
+using PaintCatalogue_WebAPI.DataModel.Entities;
 
 namespace PaintCatalogue_WebAPI.Validators;
 

@@ -1,4 +1,4 @@
-﻿namespace PaintCatalogue_WebAPI.Models;
+﻿namespace PaintCatalogue_WebAPI.DataModel.Entities;
 
 public class Brand
 {
@@ -6,7 +6,10 @@ public class Brand
 
     public string? Name { get; set; }
 
+    /// <summary>
+    /// Country where Brand is originated.
+    /// </summary>
     public string? Country { get; set; }
-
+    
     public string? Description { get; set; }
 }

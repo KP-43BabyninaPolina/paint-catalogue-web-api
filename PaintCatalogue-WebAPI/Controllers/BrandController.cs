@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PaintCatalogue_WebAPI.Models;
+using PaintCatalogue_WebAPI.DataModel.Entities;
 using PaintCatalogue_WebAPI.Storage;
 
 namespace PaintCatalogue_WebAPI.Controllers;
