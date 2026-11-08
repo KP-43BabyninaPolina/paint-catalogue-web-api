@@ -4,7 +4,7 @@ using PaintCatalogue_WebAPI.Storage.InMemory;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
-public static class PaintCatalogueServiceCollectionExtensions
+public static class RepositoryServiceCollectionExtensions
 {
 
     public  static IServiceCollection AddInMemoryStorage(this IServiceCollection services) => services
