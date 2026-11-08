@@ -1,6 +1,9 @@
+using System.Reflection;
 using PaintCatalogue_WebAPI.Validators;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
+using PaintCatalogue_WebAPI.DataModel;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 
 namespace PaintCatalogue_WebAPI;
@@ -12,8 +15,17 @@ public static class Program
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddControllers();
-        builder.Services.AddCatalogueStorages();
-
+        
+        // Щоб працювати з Sqlite базою даних:
+        builder.Services.AddDbContext<DataModelContext>(contextOptions =>
+            contextOptions.UseSqlite("Data Source=paint_catalogue.db"));
+        builder.Services.AddRepositories();
+        
+        // Щоб працювати з in-memory колекціями (для демонстрації DI):
+        // builder.Services.AddInMemoryStorage();
+        
+        builder.Services.AddAutoMapper(cfg => { }, Assembly.GetExecutingAssembly());
+        
         builder.Services.AddValidatorsFromAssemblyContaining<PaintValidator>();
         builder.Services.AddFluentValidationAutoValidation();
 

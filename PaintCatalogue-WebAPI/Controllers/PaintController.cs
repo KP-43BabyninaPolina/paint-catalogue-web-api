@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using PaintCatalogue_WebAPI.DataModel.Entities;
-using PaintCatalogue_WebAPI.Storage;
+using PaintCatalogue_WebAPI.Dtos.Paint;
+using PaintCatalogue_WebAPI.Storage.Contracts;
 
 namespace PaintCatalogue_WebAPI.Controllers;
 
@@ -9,11 +11,13 @@ namespace PaintCatalogue_WebAPI.Controllers;
 [Produces("application/json")]
 public class PaintController : ControllerBase
 {
-    private readonly IPaintStorage _paints;
-    private readonly IBrandStorage _brands;
-
-    public PaintController(IPaintStorage paints, IBrandStorage brands)
+    private readonly IMapper _mapper;
+    private readonly IPaintRepository _paints;
+    private readonly IBrandRepository _brands;
+    
+    public PaintController(IMapper mapper, IPaintRepository paints, IBrandRepository brands)
     {
+        _mapper = mapper;
         _paints = paints;
         _brands = brands;
     }
@@ -25,9 +29,15 @@ public class PaintController : ControllerBase
     /// <response code="200">All paints (or an empty array) are returned successfully.</response>
     [HttpGet(Name = "GetAllPaints")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public IEnumerable<Paint> Get()
+    public async Task<ActionResult<IEnumerable<PaintOutputDto>>> Get()
     {
-        return _paints.GetAll();
+        // Замінити на ToListAsync() з _mapper.ProjectTo
+        // коли in-memory сховище буде повністю замінене на Entity Framework Core.
+        // Наразі використовується ToList() для сумісності з локальним List<Paint>.
+        var paintsEntities = _paints.GetAll().ToList();
+        var result = _mapper.Map<IEnumerable<PaintOutputDto>>(paintsEntities);
+        
+        return Ok(result);
     }
 
     /// <summary>
@@ -39,18 +49,18 @@ public class PaintController : ControllerBase
     /// <response code="404">If the paint with the specified ID is not found.</response>
     [HttpGet("{id:int:min(1)}", Name = "GetPaintById")]
     [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
-    public ActionResult<Paint> Get(int id)
+    public async Task<ActionResult<PaintOutputDto>> Get(int id)
     {
-        var paint = _paints.Get(id);
+        var paint = await _paints.FindAsync(id);
         if (paint == null) return NotFound();
 
-        return Ok(paint);
+        return Ok(_mapper.Map<PaintOutputDto>(paint));
     }
 
     /// <summary>
     /// Creates a new paint and adds it to the catalogue.
     /// </summary>
-    /// <param name="newPaint">The paint object containing details like name and brand ID.</param>
+    /// <param name="newPaintDto">The paint object containing details like name and brand ID.</param>
     /// <returns>The newly created paint along with its generated ID.</returns>
     /// <response code="201">New paint is created successfully.</response>
     /// <response code="400">
@@ -58,27 +68,32 @@ public class PaintController : ControllerBase
     /// </response>
     [HttpPost(Name = "CreatePaint")]
     [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Post))]
-    public ActionResult<Paint> Create([FromBody] Paint newPaint)
+    public async Task<ActionResult<PaintOutputDto>> Create([FromBody] PaintCreateDto newPaintDto)
     {
-        var brandExists = _brands.Get(newPaint.BrandId) != null;
-
-        if (!brandExists)
+        var brand = await _brands.FindAsync(newPaintDto.BrandId);
+        if (brand is null)
+        {
             return BadRequest(new
             {
-                Error = $"Brand with ID {newPaint.BrandId} is not found. " +
+                Error = $"Brand with ID {newPaintDto.BrandId} is not found. " +
                         $"Paint must belong to an existing brand."
             });
+        }
 
-        var createdPaint = _paints.Add(newPaint);
+        var paintEntity = _mapper.Map<Paint>(newPaintDto);
+        paintEntity.Brand = brand;
+        
+        await _paints.AddAsync(paintEntity);
 
-        return CreatedAtAction(nameof(Get), new { id = createdPaint.Id }, createdPaint);
+        var outputDto = _mapper.Map<PaintOutputDto>(paintEntity);
+        return CreatedAtAction(nameof(Get), new { id = outputDto.Id }, outputDto);
     }
 
     /// <summary>
     /// Updates an existing paint's details.
     /// </summary>
     /// <param name="id">The unique identifier of the paint to update.</param>
-    /// <param name="updatedPaint">The updated paint data.</param>
+    /// <param name="updatedPaintDto">The updated paint data.</param>
     /// <returns>The updated paint.</returns>
     /// <response code="200">The paint is updated successfully.</response>
     /// <response code="400">
@@ -89,22 +104,30 @@ public class PaintController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<Paint> Update(int id, [FromBody] Paint updatedPaint)
+    public async Task<ActionResult<PaintOutputDto>> Update(int id, [FromBody] PaintCreateDto updatedPaintDto)
     {
-        var existingPaint = _paints.Get(id);
-        if (existingPaint == null) return NotFound(new { Error = $"Paint with ID {id} is not found." });
+        var paint = await _paints.FindAsync(id);
+        if (paint is null)
+        {
+            return NotFound(new { Error = $"Paint with ID {id} is not found." });
+        }
 
-        var brandExists = _brands.Get(updatedPaint.BrandId) != null;
-        if (!brandExists)
+        var brand = await _brands.FindAsync(updatedPaintDto.BrandId);
+        if (brand is null)
+        {
             return BadRequest(new
             {
-                Error = $"Brand with ID {updatedPaint.BrandId} is not found. " +
+                Error = $"Brand with ID {updatedPaintDto.BrandId} is not found. " +
                         $"Paint must belong to an existing brand."
             });
+        }
 
-        var result = _paints.Update(id, updatedPaint);
-
-        return Ok(result);
+        _mapper.Map(updatedPaintDto, paint);
+        paint.Brand = brand;
+        
+        await _paints.UpdateAsync(paint);
+        
+        return Ok(_mapper.Map<PaintOutputDto>(paint));
     }
 
     /// <summary>
@@ -116,12 +139,15 @@ public class PaintController : ControllerBase
     [HttpDelete("{id:int:min(1)}", Name = "DeletePaintById")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
-        var existingPaint = _paints.Get(id);
-        if (existingPaint == null) return NotFound();
+        var paint = await _paints.FindAsync(id);
+        if (paint is null)
+        {
+            return NotFound();
+        }
 
-        _paints.Delete(id);
+        await _paints.DeleteAsync(paint);
         return NoContent();
     }
 
@@ -131,9 +157,9 @@ public class PaintController : ControllerBase
     /// <response code="204">All paints are deleted successfully .</response>
     [HttpDelete(Name = "DeleteAllPaints")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public IActionResult DeleteAll()
+    public async Task<IActionResult> DeleteAll()
     {
-        _paints.DeleteAll();
+        await _paints.DeleteAllAsync();
         return NoContent();
     }
 }

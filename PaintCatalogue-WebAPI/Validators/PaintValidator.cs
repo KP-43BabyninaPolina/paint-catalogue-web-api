@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
-using PaintCatalogue_WebAPI.DataModel.Entities;
+using PaintCatalogue_WebAPI.Dtos.Paint;
 
 namespace PaintCatalogue_WebAPI.Validators;
 
-public class PaintValidator : AbstractValidator<Paint>
+public class PaintValidator : AbstractValidator<PaintCreateDto>
 {
     public PaintValidator()
     {
@@ -11,11 +11,7 @@ public class PaintValidator : AbstractValidator<Paint>
             .NotEmpty()
             .Matches(@"^\d{3}$")
             .WithMessage("Color code must consist of exactly 3 digits (e.g., '007', '125').");
-
-        RuleFor(x => x.FullTitle)
-            .NotEmpty()
-            .Length(2, 100);
-
+        
         RuleFor(x => x.ColorName)
             .NotEmpty()
             .Length(2, 50);

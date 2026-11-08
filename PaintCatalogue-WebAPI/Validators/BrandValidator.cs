@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
-using PaintCatalogue_WebAPI.DataModel.Entities;
+using PaintCatalogue_WebAPI.Dtos.Brand;
 
 namespace PaintCatalogue_WebAPI.Validators;
 
-public class BrandValidator : AbstractValidator<Brand>
+public class BrandValidator : AbstractValidator<BrandCreateDto>
 {
     public BrandValidator()
     {

@@ -5,11 +5,10 @@ public class Brand
     public int Id { get; set; }
 
     public string? Name { get; set; }
-
-    /// <summary>
-    /// Country where Brand is originated.
-    /// </summary>
+    
     public string? Country { get; set; }
     
     public string? Description { get; set; }
+    
+    public List<Paint> Paints { get; set; } = [];
 }
